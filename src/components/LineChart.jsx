@@ -15,7 +15,9 @@ class LineChart extends React.Component {
   static propTypes = {
     onFetchData: PropTypes.func.isRequired,
     initialLoading: PropTypes.bool.isRequired,
-    stateReducer: PropTypes.func.isRequired
+    stateReducer: PropTypes.func.isRequired,
+    xAxisKey: PropTypes.string.isRequired,
+    yAxisKey: PropTypes.string.isRequired
   };
 
   static defaultProps = {
@@ -23,6 +25,8 @@ class LineChart extends React.Component {
     initialMargin: { top: 0, bottom: 0, left: 0, right: 0 },
     initialHeight: 100,
     initialWidth: 100,
+    xAxisKey: "date",
+    yAxisKey: "count",
     stateReducer: (state, changes) => changes,
     onFetchData: () => Promise.resolve([])
   };
@@ -108,29 +112,28 @@ class LineChart extends React.Component {
   // Props getters we pass to the consumer of the <LineChart /> component
   getLineProps = (props = {}) => {
     if (this.state.data) {
-      const data = this.state.data;
-      const height = this.state.height;
-      const width = this.state.width;
+      const { data, height, width } = this.state;
+      const { yAxisKey, xAxisKey } = this.props;
 
       // Create the x-axis scale
-      const timeDomain = extent(data, d => d.date);
+      const timeDomain = extent(data, d => d[xAxisKey]);
       const xScale = scaleTime()
         .domain(timeDomain)
         .range([0, width]);
 
       // Create the y-axis scale
-      const countDomain = extent(data, d => d.count);
+      const countDomain = extent(data, d => d[yAxisKey]);
       const yScale = scaleLinear()
         .domain(countDomain)
         .range([height, 0]);
 
       // Build the line generator
-      const lineGenerator = line().x(d => xScale(d.date));
+      const lineGenerator = line().x(d => xScale(d[xAxisKey]));
 
-      // Return on object that will be applied as props to an svg <path /> element
+      // Return an object that will be applied as props to an svg <path /> element
       return {
         fill: "none",
-        d: lineGenerator.y(d => yScale(d.count))(data),
+        d: lineGenerator.y(d => yScale(d[yAxisKey]))(data),
         strokeWidth: 2,
         stroke: "black",
         ...props
