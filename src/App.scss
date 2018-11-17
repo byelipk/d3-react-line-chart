@@ -1,0 +1,110 @@
+// Height
+$header-height: 60px;
+
+// Containers
+$container-padding: 0 285px;
+
+// Colors
+$white: #ffffff;
+$header-color: #604D8F;
+$background-color: #F8F8FA;
+
+// Panes
+$pane-border-radius: 5px;
+
+body {
+  background: $background-color;
+}
+
+// Layout
+.container {
+  padding: $container-padding;
+}
+
+// Flex helpers
+
+.u-flex {
+  display: flex;
+}
+
+$flex-child-sizes: (1, 2);
+@each $size in $flex-child-sizes {
+  .u-flex-#{$size} {
+    flex: $size;
+  }
+}
+
+$flex-directions: (
+  row: row,
+  col: column,
+  row-rev: row-reverse,
+  col-rev: column-reverse
+);
+@each $name, $value in $flex-directions {
+  .u-flex-#{$name} {
+    flex-direction: $value
+  }
+}
+
+$flex-positions: (
+  end: flex-end,
+  start: flex-start,
+  around: space-around,
+  between: space-between,
+  center: center
+);
+@each $name, $value in $flex-positions {
+  .u-justify-#{$name} {
+    justify-content: $value;
+  }
+}
+@each $name, $value in $flex-positions {
+  .u-align-#{$name} {
+    align-items: $value;
+  }
+}
+
+
+// Header Component
+.header {
+  height: $header-height;
+  background: $header-color;
+}
+
+// Layout Component
+.layout {
+  margin-top: 30px;
+}
+.pane {
+  background: $white;
+  border: 1px solid #C2C2C2;
+  border-radius: $pane-border-radius;
+  padding: 10px;
+  &--primary.pane__right {
+    margin-left: 30px;
+  }
+  &--primary.pane__left {
+    margin-right: 30px;
+  }
+}
+
+// Line Chart
+.line-chart {
+  height: 100%;
+  width: 100%;
+}
+
+// Logo stub
+.logo {
+  height: 33px;
+  width: 33px;
+  border-radius: 50%;
+  background: $background-color;
+}
+
+// Avatar stub
+.avatar {
+  height: 33px;
+  width: 33px;
+  border-radius: 50%;
+}
