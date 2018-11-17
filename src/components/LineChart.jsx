@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { scaleTime, scaleLinear, line } from "d3";
+import { extent, scaleTime, scaleLinear, line } from "d3";
 
 // const callAll = (...fns) => (...args) => fns.forEach(fn => fn && fn(...args));
 
@@ -13,16 +13,18 @@ import { scaleTime, scaleLinear, line } from "d3";
 
 class LineChart extends React.Component {
   static propTypes = {
+    onFetchData: PropTypes.func.isRequired,
     initialLoading: PropTypes.bool.isRequired,
     stateReducer: PropTypes.func.isRequired
   };
 
   static defaultProps = {
     initialLoading: true,
+    initialMargin: { top: 0, bottom: 0, left: 0, right: 0 },
     initialHeight: 100,
     initialWidth: 100,
-    initialMargin: { top: 0, bottom: 0, left: 0, right: 0 },
-    stateReducer: (state, changes) => changes
+    stateReducer: (state, changes) => changes,
+    onFetchData: () => Promise.resolve([])
   };
 
   // Private instance variables
@@ -34,9 +36,9 @@ class LineChart extends React.Component {
   // Setup component state
   initialState = {
     isLoading: this.props.initialLoading,
+    margin: this.props.initialMargin,
     width: this.props.initialWidth,
-    height: this.props.initialHeight,
-    margin: this.props.initialMargin
+    height: this.props.initialHeight
   };
   state = this.initialState;
 
@@ -56,23 +58,31 @@ class LineChart extends React.Component {
       this._latestKnownWidth = this._containerRef.clientWidth;
       this._latestKnownHeight = this._containerRef.clientHeight;
       this.requestTick();
+    } else {
+      console.error("LineChart is missing a containerRef.");
     }
   };
   requestTick = () => {
     if (!this._ticking) {
-      window.requestAnimationFrame(this.update);
+      window.requestAnimationFrame(this.updateDimensions);
     }
     this._ticking = true;
   };
-  update = () => {
+  updateDimensions = () => {
     let currentKnownWidth = this._latestKnownWidth;
     let currentKnownHeight = this._latestKnownHeight;
 
     // Make any updates that we need...
-    this.internalSetState(() => ({
-      width: currentKnownWidth,
-      height: currentKnownHeight
-    }));
+    this.internalSetState(
+      state => ({
+        ...state,
+        width: currentKnownWidth,
+        height: currentKnownHeight
+      }),
+      () => {
+        this._ticking = false;
+      }
+    );
   };
 
   componentDidMount() {
@@ -82,43 +92,58 @@ class LineChart extends React.Component {
     this.handleResize();
 
     // Fetch data
-    fetch(`${process.env.PUBLIC_URL || ""}/data.json`)
-      .then(response => response.json())
-      .then(data => {
-        const mappedCollection = data["collection"].map(item =>
-          Object.assign({}, item, { date: new Date(item.date) })
-        );
-        
-        this.internalSetState(() => ({
-          isLoading: false,
-          data: mappedCollection
-        }));
-      });
+    this.props.onFetchData().then(data => {
+      this.internalSetState(state => ({
+        ...state,
+        data,
+        isLoading: false
+      }));
+    });
   }
   componentWillUnmount() {
     // Cleanup resize handler
     window.removeEventListener("resize", this.handleResize);
   }
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.data) {
-      console.log("DUDE");
-    }
-  }
 
   // Props getters we pass to the consumer of the <LineChart /> component
-  getXAxisProps = () => {};
-  getYAxisProps = () => {};
-  getLineProps = () => {};
+  getLineProps = (props = {}) => {
+    if (this.state.data) {
+      const data = this.state.data;
+      const height = this.state.height;
+      const width = this.state.width;
+
+      // Create the x-axis scale
+      const timeDomain = extent(data, d => d.date);
+      const xScale = scaleTime()
+        .domain(timeDomain)
+        .range([0, width]);
+
+      // Create the y-axis scale
+      const countDomain = extent(data, d => d.count);
+      const yScale = scaleLinear()
+        .domain(countDomain)
+        .range([height, 0]);
+
+      // Build the line generator
+      const lineGenerator = line().x(d => xScale(d.date));
+
+      // Return on object that will be applied as props to an svg <path /> element
+      return {
+        fill: "none",
+        d: lineGenerator.y(d => yScale(d.count))(data),
+        strokeWidth: 2,
+        stroke: "black",
+        ...props
+      };
+    }
+  };
   setContainerRef = el => (this._containerRef = el);
   getStateAndHelpers() {
     return {
       height: this.state.height,
       width: this.state.width,
-      color: "black",
       setContainerRef: this.setContainerRef,
       isLoading: this.state.isLoading,
-      getXAxisProps: this.getXAxisProps,
-      getYAxisProps: this.getYAxisProps,
       getLineProps: this.getLineProps
     };
   }
