@@ -2,7 +2,7 @@
 $header-height: 60px;
 
 // Containers
-$container-padding: 0 285px;
+$container-padding: 0 130px;
 
 // Colors
 $white: #ffffff;
@@ -12,9 +12,19 @@ $background-color: #F8F8FA;
 // Panes
 $pane-border-radius: 5px;
 $pane-border-color: #C2C2C2;
+$pane-padding: 10px;
+
+// Chart
+$text-color: #4e4e4e;
+$stroke-color: #cfcfcf;
+@mixin stroke($width, $color: $stroke-color) {
+  stroke: $color;
+  stroke-width: $width;
+}
 
 body {
   background: $background-color;
+  font-family: Proxima Nova;
 }
 
 // Layout
@@ -28,7 +38,7 @@ body {
   display: flex;
 }
 
-$flex-child-sizes: (1, 2);
+$flex-child-sizes: (1, 2, 3, 4, 5);
 @each $size in $flex-child-sizes {
   .u-flex-#{$size} {
     flex: $size;
@@ -84,7 +94,24 @@ $flex-positions: (
   background: $white;
   border: 1px solid $pane-border-color;
   border-radius: $pane-border-radius;
-  padding: 10px;
+  &-header {
+    padding: 0;
+    &--padded {
+      padding: $pane-padding;
+    }
+  }
+  &-body {
+    padding: 0;
+    &--padded {
+      padding: $pane-padding;
+    }
+  }
+  &-footer {
+    padding: 0;
+    &--padded {
+      padding: $pane-padding;
+    }
+  }
   &--primary.pane__right {
     margin-left: 30px;
   }
@@ -95,8 +122,37 @@ $flex-positions: (
 
 // Line Chart
 .line-chart {
-  height: 100%;
-  width: 100%;
+  // height: 100%;
+  // width: 100%;
+  .y-axis {
+    .domain {
+      stroke: transparent;
+    }
+    .tick {
+      line {
+        @include stroke(2);
+      }
+    }
+  }
+  .x-axis {
+    .domain {
+      @include stroke(2, #737373);
+    }
+    .tick {
+      line {
+        @include stroke(2, #737373);
+      }
+    }
+  }
+  text {
+    fill: $text-color;
+    font-size: 13px;
+  }
+  .circle {
+    fill: white;
+    stroke: #1ea2ff;
+    stroke-width: 3;
+  }
 }
 
 // Logo stub
@@ -112,4 +168,22 @@ $flex-positions: (
   height: 33px;
   width: 33px;
   border-radius: 50%;
+}
+
+/* tooltip */
+.tooltip {
+  background: #fff;
+  border-radius: 3px;
+  overflow: hidden;
+  position: absolute;
+  width: 150px;
+  z-index: 70;
+  // transform: scale(0.95);
+  // transition: transform 0.2s cubic-bezier(0.19, 1, 0.22, 1);
+  box-shadow: 0 8px 16px -4px rgba(9, 45, 66, 0.25),
+    0 0 0 1px rgba(9, 45, 66, 0.08);
+}
+
+.tooltip.visible {
+  // transform: scale(1.0);
 }

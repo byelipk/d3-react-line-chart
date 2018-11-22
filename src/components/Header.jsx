@@ -1,6 +1,9 @@
 import React from "react";
 
 class Header extends React.Component {
+  shouldComponentUpdate() {
+    return false;
+  }
   getStateAndHelpers() {
     return {};
   }
