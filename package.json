@@ -4,7 +4,9 @@
   "private": true,
   "dependencies": {
     "d3": "^5.7.0",
+    "dayjs": "^1.7.7",
     "node-sass": "^4.10.0",
+    "popper.js": "^1.14.5",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
     "react-scripts": "2.1.1"
