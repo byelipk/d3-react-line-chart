@@ -22,6 +22,8 @@ import {
 
 class LineChart extends React.Component {
   static propTypes = {
+    height: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
     data: PropTypes.array.isRequired,
     stateReducer: PropTypes.func.isRequired,
     xAxisKey: PropTypes.string.isRequired,
@@ -35,6 +37,8 @@ class LineChart extends React.Component {
   };
 
   static defaultProps = {
+    height: 500,
+    width: 300,
     xAxisKey: "date",
     yAxisKey: "count",
     stateReducer: (state, changes) => ({ ...state, ...changes }),
@@ -43,8 +47,7 @@ class LineChart extends React.Component {
   };
 
   static getDerivedStateFromProps(nextProps, nextState) {
-    const { margin, xAxisKey, yAxisKey, data } = nextProps;
-    const { height, width } = nextState;
+    const { margin, xAxisKey, yAxisKey, data, height, width } = nextProps;
 
     // NOTE
     // Remember to subtract the appropriate margin values
@@ -81,13 +84,9 @@ class LineChart extends React.Component {
   _xAxis = axisBottom();
   _yAxis = axisLeft();
 
-  _initialHeight = 300;
-  _initialWidth = 500;
 
   // Setup component state
   initialState = {
-    width: this._initialWidth,
-    height: this._initialHeight
   };
   state = this.initialState;
 
@@ -104,23 +103,32 @@ class LineChart extends React.Component {
   }
 
   // handleResize = () => {
-  //   this._latestKnownWidth = this._containerRef.clientWidth;
-  //   this._latestKnownHeight = this._containerRef.clientHeight;
+  //   const { height, width } = this._containerRef.getBoundingClientRect();
+  //   this._latestKnownWidth = height;
+  //   this._latestKnownHeight = width;
   //   this.requestTick();
   // };
   // requestTick = () => {
   //   if (!this._ticking) {
-  //     window.requestAnimationFrame(this.updateDimensions);
+  //     window.requestAnimationFrame(this.redrawChart);
   //   }
   //   this._ticking = true;
   // };
-  // updateDimensions = () => {
+  // redrawChart = () => {
   //   const currentKnownWidth = this._latestKnownWidth;
-  //   const currentKnownHeight = this._latestKnownHeight;
+
+  //   const { margin, xAxisKey, data } = this.props;
+
+  //   // Update X scale
+  //   const timeDomain = extent(data, d => d[xAxisKey]);
+  //   const xScale = scaleTime()
+  //     .domain(timeDomain)
+  //     .range([margin.left, currentKnownWidth - margin.right]);
+
   //   this.internalSetState(
   //     () => ({
   //       width: currentKnownWidth,
-  //       height: currentKnownHeight,
+  //       xScale
   //     }),
   //     () => {
   //       this._ticking = false;
@@ -128,31 +136,6 @@ class LineChart extends React.Component {
   //   );
   // };
 
-  componentDidMount() {
-    const { height, width } = this._containerRef.getBoundingClientRect();
-    this.internalSetState(() => ({
-      height,
-      width
-    }));
-  }
-
-  // componentDidMount() {
-  //   // Setup resize handler,
-  //   window.addEventListener("resize", this.handleResize);
-
-  //   // Run it for the first time.
-  //   this.handleResize();
-
-  //   // Fetch data
-  //   const { xScale, yScale } = this.xAndYScales();
-  //   this.internalSetState(() => ({
-  //     xScale,
-  //     yScale
-  //   }));
-  // }
-  // componentWillUnmount() {
-  //   window.removeEventListener("resize", this.handleResize);
-  // }
   componentDidUpdate() {
     this.drawComplicatedD3Axis();
   }
@@ -169,7 +152,7 @@ class LineChart extends React.Component {
       this._yAxis
         .scale(this.state.yScale)
         .tickSizeOuter(0)
-        .tickSizeInner(-this.state.width + this.props.margin.left * 2)
+        .tickSizeInner(-this.props.width + this.props.margin.left * 2)
         .tickPadding(15)
         .ticks(6);
 
@@ -186,7 +169,7 @@ class LineChart extends React.Component {
   getXAxisProps = props => {
     return {
       className: "x-axis",
-      transform: `translate(0, ${this.state.height -
+      transform: `translate(0, ${this.props.height -
         this.props.margin.bottom})`,
       ...props
     };
@@ -226,7 +209,7 @@ class LineChart extends React.Component {
   getAreaProps = props => {
     const areaGenerator = area()
       .x(d => this.state.xScale(d.date))
-      .y0(this.state.height - this.props.margin.bottom)
+      .y0(this.props.height - this.props.margin.bottom)
       .y1(d => this.state.yScale(d.count));
 
     return {
@@ -241,8 +224,8 @@ class LineChart extends React.Component {
   getStateAndHelpers() {
     return {
       data: this.props.data,
-      height: this.state.height,
-      width: this.state.width,
+      height: this.props.height,
+      width: this.props.width,
       setContainerRef: this.setContainerRef,
       setXAxisRef: this.setXAxisRef,
       setYAxisRef: this.setYAxisRef,

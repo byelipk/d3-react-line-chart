@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import "./App.scss";
+import dayjs from "dayjs";
 
 import Header from "./components/Header";
 import Layout from "./components/Layout";
@@ -64,61 +65,60 @@ class App extends Component {
           )}
         </Header>
         <Layout>
-          {_layoutState => (
-            <div className="layout u-flex container">
-              <div className="pane pane__left u-flex-1">
-                <div className="pane-body pane-body--padded" onClick={this.handleClick}>
-                  <LineChart data={this.state.data}>
-                    {chart => (
-                      <div className="line-chart" ref={chart.setContainerRef}>
-                        <svg height={chart.height} width={chart.width}>
-                          <g
-                            ref={chart.setXAxisRef}
-                            {...chart.getXAxisProps()}
-                          />
-                          <g
-                            ref={chart.setYAxisRef}
-                            {...chart.getYAxisProps()}
-                          />
-                          <path {...chart.getAreaProps()} />
-                          <path {...chart.getLineProps()} />
-                          {chart.data.map((d, i) => (
-                            <circle
-                              key={`circle-${i}`}
-                              {...chart.getCircleProps({
-                                d: d,
-                                onMouseEnter: e => this.handleMouseEnter(d, e),
-                                onMouseLeave: e => this.handleMouseLeave(d, e),
-                              })}
-                            />
-                          ))}
-                        </svg>
-                      </div>
-                    )}
-                  </LineChart>
-                  {this.state.showTooltip ? (
-                    <Tooltip>
-                      <div
-                        className="tooltip pane"
-                        style={{
-                          left: this._positionLeft,
-                          top: this._positionTop
-                        }}
-                      >
-                        <div className="pane-body pane-body--padded">
-                          <p><strong>How many views did you get here?</strong></p>
-                          <p>{this.state.tooltipData.count}</p>
-                        </div>
-                      </div>
-                    </Tooltip>
-                  ) : null}
-                </div>
-              </div>
-              {/* <div className="pane pane__right u-flex-1">
-                <div className="pane-body">
-                  <Layout.BoilerplateText />
-                </div>
-              </div> */}
+          {layout => (
+            <div
+              className="layout u-flex container line-chart-container"
+              ref={layout.setContainerRef}
+            >
+              <LineChart
+                height={layout.height}
+                width={layout.width}
+                data={this.state.data}
+              >
+                {chart => (
+                  <svg
+                    className="line-chart"
+                    height={chart.height}
+                    width={chart.width}
+                  >
+                    <g ref={chart.setXAxisRef} {...chart.getXAxisProps()} />
+                    <g ref={chart.setYAxisRef} {...chart.getYAxisProps()} />
+                    <path {...chart.getAreaProps()} />
+                    <path {...chart.getLineProps()} />
+                    {chart.data.map((d, i) => (
+                      <circle
+                        key={`circle-${i}`}
+                        {...chart.getCircleProps({
+                          d: d,
+                          onMouseEnter: e => this.handleMouseEnter(d, e, i),
+                          onMouseLeave: e => this.handleMouseLeave(d, e)
+                        })}
+                      />
+                    ))}
+                  </svg>
+                )}
+              </LineChart>
+
+              {this.state.showTooltip ? (
+                <Tooltip>
+                  <div
+                    className="tooltip pane"
+                    style={{
+                      left: this._positionLeft,
+                      top: this._positionTop
+                    }}
+                  >
+                    <div className="pane-body pane-body--padded">
+                      <p>
+                        Week of{" "}
+                        {dayjs(this.state.tooltipData.date).format("MMM D")}
+                      </p>
+                      <p>{this.state.tooltipData.count} views</p>
+                      <p>12 from last week</p>
+                    </div>
+                  </div>
+                </Tooltip>
+              ) : null}
             </div>
           )}
         </Layout>
