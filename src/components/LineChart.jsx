@@ -8,8 +8,12 @@ import {
   line,
   area,
   axisBottom,
-  axisLeft
+  axisLeft,
+  timeDay,
+  timeWeek
 } from "d3";
+
+import { _aspectRatio, _aspectRatioMap } from "../helpers";
 
 // const callAll = (...fns) => (...args) => fns.forEach(fn => fn && fn(...args));
 
@@ -113,7 +117,13 @@ class LineChart extends React.Component {
         .tickSizeOuter(0)
         .tickSizeInner(10)
         .tickPadding(10)
-        .ticks(6, "%B %d");
+      
+      if (_aspectRatio(this.props.width) >= _aspectRatioMap.medium) {
+        this._xAxis.ticks(timeWeek.every(1));
+      }
+      else {
+        this._xAxis.ticks(6, "%B %d");
+      }
 
       this._yAxis
         .scale(this.state.yScale)
