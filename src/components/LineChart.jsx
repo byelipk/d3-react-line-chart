@@ -43,7 +43,7 @@ class LineChart extends React.Component {
     yAxisKey: "count",
     stateReducer: (state, changes) => ({ ...state, ...changes }),
     onFetchData: () => Promise.resolve([]),
-    margin: { top: 20, right: 0, bottom: 35, left: 40 }
+    margin: { top: 20, right: 0, bottom: 50, left: 50 }
   };
 
   static getDerivedStateFromProps(nextProps, nextState) {
@@ -102,40 +102,6 @@ class LineChart extends React.Component {
     }, callback);
   }
 
-  // handleResize = () => {
-  //   const { height, width } = this._containerRef.getBoundingClientRect();
-  //   this._latestKnownWidth = height;
-  //   this._latestKnownHeight = width;
-  //   this.requestTick();
-  // };
-  // requestTick = () => {
-  //   if (!this._ticking) {
-  //     window.requestAnimationFrame(this.redrawChart);
-  //   }
-  //   this._ticking = true;
-  // };
-  // redrawChart = () => {
-  //   const currentKnownWidth = this._latestKnownWidth;
-
-  //   const { margin, xAxisKey, data } = this.props;
-
-  //   // Update X scale
-  //   const timeDomain = extent(data, d => d[xAxisKey]);
-  //   const xScale = scaleTime()
-  //     .domain(timeDomain)
-  //     .range([margin.left, currentKnownWidth - margin.right]);
-
-  //   this.internalSetState(
-  //     () => ({
-  //       width: currentKnownWidth,
-  //       xScale
-  //     }),
-  //     () => {
-  //       this._ticking = false;
-  //     }
-  //   );
-  // };
-
   componentDidUpdate() {
     this.drawComplicatedD3Axis();
   }
@@ -162,7 +128,6 @@ class LineChart extends React.Component {
     }
   };
 
-  setContainerRef = el => (this._containerRef = el);
   setXAxisRef = el => (this._xAxisRef = el);
   setYAxisRef = el => (this._yAxisRef = el);
 
@@ -226,7 +191,6 @@ class LineChart extends React.Component {
       data: this.props.data,
       height: this.props.height,
       width: this.props.width,
-      setContainerRef: this.setContainerRef,
       setXAxisRef: this.setXAxisRef,
       setYAxisRef: this.setYAxisRef,
       getLineProps: this.getLineProps,

@@ -80,6 +80,7 @@ class App extends Component {
                     className="line-chart"
                     height={chart.height}
                     width={chart.width}
+                    viewBox={`0 0 ${chart.width} ${chart.height}`}
                   >
                     <g ref={chart.setXAxisRef} {...chart.getXAxisProps()} />
                     <g ref={chart.setYAxisRef} {...chart.getYAxisProps()} />
