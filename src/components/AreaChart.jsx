@@ -9,22 +9,15 @@ import {
   area,
   axisBottom,
   axisLeft,
-  timeDay,
-  timeWeek
+  timeMonday,
+  timeFormat
 } from "d3";
-
-import { _aspectRatio, _aspectRatioMap } from "../helpers";
 
 // const callAll = (...fns) => (...args) => fns.forEach(fn => fn && fn(...args));
 
-// const margin = { top: 30, right: 30, bottom: 80, left: 70 };
-// width  = ($container.offsetWidth   - margin.left - margin.right),
-// height = ($container.offsetHeight - 100 - margin.top - margin.bottom);
+import { aspectRatio, _aspectRatioMap } from "../aspect-ratio";
 
-// const xScale = d3.scaleTime().range([0, width])
-// const yScale = d3.scaleLinear().range([height, 0])
-
-class LineChart extends React.Component {
+class AreaChart extends React.Component {
   static propTypes = {
     height: PropTypes.number.isRequired,
     width: PropTypes.number.isRequired,
@@ -43,21 +36,15 @@ class LineChart extends React.Component {
   static defaultProps = {
     height: 500,
     width: 300,
-    xAxisKey: "date",
-    yAxisKey: "count",
     stateReducer: (state, changes) => ({ ...state, ...changes }),
     onFetchData: () => Promise.resolve([]),
     margin: { top: 20, right: 0, bottom: 50, left: 50 }
   };
 
-  static getDerivedStateFromProps(nextProps, nextState) {
+  static getDerivedStateFromProps(nextProps) {
     const { margin, xAxisKey, yAxisKey, data, height, width } = nextProps;
 
-    // NOTE
-    // Remember to subtract the appropriate margin values
-    // when creating the scales.
-
-    // Create the x-axis scale.
+    // Create the x-axis scale. The xAxisKey must reference a JS Date object.
     const timeDomain = extent(data, d => d[xAxisKey]);
     const xScale = scaleTime()
       .domain(timeDomain)
@@ -77,11 +64,6 @@ class LineChart extends React.Component {
 
   // Private instance variables, things that if changed should
   // not cause a re-render.
-  _ticking = false;
-  _latestKnownWidth = null;
-  _latestKnownHeight = null;
-
-  _containerRef = null;
   _xAxisRef = null;
   _yAxisRef = null;
 
@@ -90,9 +72,11 @@ class LineChart extends React.Component {
 
 
   // Setup component state
-  initialState = {
+  _initialState = { 
+    xScale: () => {},
+    yScale: () => {},
   };
-  state = this.initialState;
+  state = this._initialState;
 
   internalSetState(changes, callback) {
     this.setState(state => {
@@ -117,20 +101,24 @@ class LineChart extends React.Component {
         .tickSizeOuter(0)
         .tickSizeInner(10)
         .tickPadding(10)
-      
-      if (_aspectRatio(this.props.width) >= _aspectRatioMap.medium) {
-        this._xAxis.ticks(timeWeek.every(1));
-      }
-      else {
-        this._xAxis.ticks(6, "%B %d");
-      }
+        .ticks(
+          aspectRatio(this.props.width) === _aspectRatioMap.small ?
+            timeMonday.every(3) : 
+            timeMonday.every(1)
+        )
+        .tickFormat(
+          timeFormat("%b %e")
+        );
 
       this._yAxis
         .scale(this.state.yScale)
         .tickSizeOuter(0)
         .tickSizeInner(-this.props.width + this.props.margin.left * 2)
         .tickPadding(15)
-        .ticks(6);
+        .ticks(
+          aspectRatio(this.props.width) === _aspectRatioMap.small ?
+            3 : 4
+        );
 
       // Have D3 build the complicated x and y scales.
       select(this._xAxisRef).call(this._xAxis);
@@ -160,8 +148,8 @@ class LineChart extends React.Component {
     return {
       className: "circle",
       r: "7.5",
-      cx: this.state.xScale(d.date),
-      cy: this.state.yScale(d.count),
+      cx: this.state.xScale(d[this.props.xAxisKey]),
+      cy: this.state.yScale(d[this.props.yAxisKey]),
       ...props
     };
   };
@@ -183,9 +171,9 @@ class LineChart extends React.Component {
   };
   getAreaProps = props => {
     const areaGenerator = area()
-      .x(d => this.state.xScale(d.date))
+      .x(d => this.state.xScale(d[this.props.xAxisKey]))
       .y0(this.props.height - this.props.margin.bottom)
-      .y1(d => this.state.yScale(d.count));
+      .y1(d => this.state.yScale(d[this.props.yAxisKey]));
 
     return {
       className: "area",
@@ -215,4 +203,4 @@ class LineChart extends React.Component {
   }
 }
 
-export default LineChart;
+export default AreaChart;

@@ -1,36 +1,32 @@
 import React from "react";
 
-import { aspectRatio } from "../helpers";
+import { aspectRatio } from "../aspect-ratio";
 
-class Layout extends React.Component {
-  static BoilerplateText = () => (
-    <p>
-      There's going to be a bunch of content here in this side panel. We won't
-      need to worry about it for now. Let's just focus on rendering a chart with
-      D3 and React in the main panel!
-    </p>
-  );
-
-  _latestKnownWidth = 1178;
+class ResponsiveSVGContainer extends React.Component {
+  _ticking = false;
+  _latestKnownWidth = 500;
   _latestKnownHeight = aspectRatio(this._latestKnownWidth) * this._latestKnownWidth;
 
   _initialState = {
-    height: 0,
-    width: 0
+    height: this._latestKnownWidth,
+    width: this._latestKnownHeight
   };
   state = this._initialState;
 
   setContainerRef = el => (this._containerRef = el);
 
   handleResize = () => {
-    if (this._containerRef) {
-      const currentWidth = this._containerRef.clientWidth;
-      this._latestKnownWidth = currentWidth;
+    if (this._containerRef && !this._ticking) {
+      this._ticking = true;
+
+      this._latestKnownWidth = this._containerRef.clientWidth;
       this._latestKnownHeight = aspectRatio(this._latestKnownWidth) * this._latestKnownWidth;
   
       this.setState({
         width: this._latestKnownWidth,
         height: this._latestKnownHeight
+      }, () => {
+        this._ticking = false;
       });
     }
   };
@@ -60,4 +56,4 @@ class Layout extends React.Component {
   }
 }
 
-export default Layout;
+export default ResponsiveSVGContainer;

@@ -6,13 +6,31 @@ $container-padding: 0 130px;
 
 // Colors
 $white: #ffffff;
-$header-color: #604D8F;
-$background-color: #F8F8FA;
+$header-color: #604d8f;
+$background-color: #f8f8fa;
+$border-color: #cecece;
+$circle-stroke-color: #1ea2ff;
+
+/* Panels */
+$panel-background-white-color:  #FFFFFF;
+$panel-background-gray-color:   #F3F3F3;
+
+/* Text */
+$text-black-color:              #000000;
+$text-dark-color:               #424242;
+$text-color:                    #515151;
+$text-light-color:              #767676;
+$text-white-color:              #FFFFFF;
 
 // Panes
 $pane-border-radius: 5px;
-$pane-border-color: #C2C2C2;
+$pane-border-color: #c2c2c2;
 $pane-padding: 10px;
+
+/* Borders */
+$border-color:                  #CECECE;
+$border-light-color:            #E7E9EA;
+$border-marketing:              #5028A1;
 
 // Chart
 $text-color: #4e4e4e;
@@ -59,7 +77,7 @@ $flex-directions: (
 );
 @each $name, $value in $flex-directions {
   .u-flex-#{$name} {
-    flex-direction: $value
+    flex-direction: $value;
   }
 }
 
@@ -84,7 +102,6 @@ $flex-positions: (
     align-self: $value;
   }
 }
-
 
 // Header Component
 .header {
@@ -126,10 +143,12 @@ $flex-positions: (
   }
 }
 
-// Line Chart
-.line-chart {
-  // height: 100%;
-  // width: 100%;
+// Area Chart
+@mixin stroke($width, $color: darken($border-color, 0.5%)) {
+  stroke: $color;
+  stroke-width: $width;
+}
+.area-chart {
   .y-axis {
     .domain {
       stroke: transparent;
@@ -138,30 +157,163 @@ $flex-positions: (
       line {
         @include stroke(2);
       }
+      &:first-of-type {
+        line {
+          @include stroke(1, lighten($text-light-color, 1%));
+        }
+      }
     }
   }
   .x-axis {
     .domain {
-      @include stroke(2, #737373);
+      @include stroke(2, lighten($text-light-color, 1%));
     }
     .tick {
       line {
-        @include stroke(2, #737373);
+        @include stroke(2, lighten($text-light-color, 1%));
       }
     }
   }
   text {
-    fill: $text-color;
+    fill: lighten($text-dark-color, 4.71);
     font-size: 13px;
   }
   .circle {
-    fill: white;
-    stroke: #1ea2ff;
+    fill: $circle-stroke-color;
+    stroke: $circle-stroke-color;
     stroke-width: 3;
+    &.current-week {
+      fill: white;
+    }
   }
 }
 
-// Logo stub
+// D3 popover
+.profile-activity-popover {
+  background: $panel-background-white-color;
+  border-radius: 3px;
+  position: fixed;
+  width: 150px;
+  z-index: 70;
+  border: 1px solid $border-color;
+
+  @media screen and (min-width: 768px) {
+    width: 190px;
+  }
+
+  &__heading {
+    text-align: center;
+    padding: 0.5rem;
+    border-bottom: 1px solid $border-light-color;
+    font-size: 13px;
+  }
+  &__body {
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    div {
+      text-align: center;
+    }
+  }
+
+  &[data-placement*="bottom"] {
+    border-top-width: 3px;
+  }
+  &[data-placement*="top"] {
+    border-bottom-width: 3px;
+  }
+  &[data-placement*="left"] {
+    border-right-width: 3px;
+  }
+  &[data-placement*="right"] {
+    border-left-width: 3px;
+  }
+
+  &__arrow {
+    position: absolute;
+    width: 3em;
+    height: 3em;
+    &[data-placement*="bottom"] {
+      top: 0;
+      left: 0;
+      margin-top: -1em;
+      width: 3em;
+      height: 1em;
+      &::before {
+        border-width: 0 1.5em 1em 1.5em;
+        border-color: transparent transparent $border-color transparent;
+      }
+      &::after {
+        position: absolute;
+        top: 3px;
+        border-width: 0 1.5em 1em 1.5em;
+        border-color: transparent transparent white transparent;
+      }
+    }
+    &[data-placement*="top"] {
+      bottom: 0;
+      left: 0;
+      margin-bottom: -1em;
+      width: 3em;
+      height: 1em;
+      &::before {
+        border-width: 1em 1.5em 0 1.5em;
+        border-color: $border-color transparent transparent transparent;
+      }
+      &::after {
+        position: absolute;
+        bottom: 3px;
+        border-width: 1em 1.5em 0 1.5em;
+        border-color: white transparent transparent transparent;
+      }
+    }
+    &[data-placement*="right"] {
+      left: 0;
+      margin-left: -1em;
+      height: 3em;
+      width: 1em;
+      &::before {
+        border-width: 1.5em 1em 1.5em 0;
+        border-color: transparent $border-color transparent transparent;
+      }
+      &::after {
+        position: absolute;
+        left: 3px;
+        top: 0px;
+        border-width: 1.5em 1em 1.5em 0;
+        border-color: transparent white transparent transparent;
+      }
+    }
+    &[data-placement*="left"] {
+      right: 0;
+      margin-right: -1em;
+      height: 3em;
+      width: 1em;
+      &::before {
+        border-width: 1.5em 0 1.5em 1em;
+        border-color: transparent transparent transparent $border-color;
+      }
+      &::after {
+        position: absolute;
+        right: 3px;
+        top: 0px;
+        border-width: 1.5em 0 1.5em 1em;
+        border-color: transparent transparent transparent white;
+      }
+    }
+    &::before,
+    &::after {
+      content: "";
+      margin: auto;
+      display: block;
+      width: 0;
+      height: 0;
+      border-style: solid;
+    }
+  }
+}
+
 .logo {
   height: 33px;
   width: 33px;
@@ -169,27 +321,8 @@ $flex-positions: (
   background: $background-color;
 }
 
-// Avatar stub
 .avatar {
   height: 33px;
   width: 33px;
   border-radius: 50%;
-}
-
-/* tooltip */
-.tooltip {
-  background: #fff;
-  border-radius: 3px;
-  overflow: hidden;
-  position: absolute;
-  width: 150px;
-  z-index: 70;
-  // transform: scale(0.95);
-  // transition: transform 0.2s cubic-bezier(0.19, 1, 0.22, 1);
-  box-shadow: 0 8px 16px -4px rgba(9, 45, 66, 0.25),
-    0 0 0 1px rgba(9, 45, 66, 0.08);
-}
-
-.tooltip.visible {
-  // transform: scale(1.0);
 }

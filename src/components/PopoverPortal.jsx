@@ -1,22 +1,22 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-const tooltipRoot = document.getElementById('tooltip');
+const popoverRoot = document.getElementById('profile-activity-popover');
 
-class Popover extends React.Component {
+class PopoverPortal extends React.Component {
   constructor(props) {
     super(props);
     this.el = document.createElement('div');
   }
 
   componentDidMount() {
-    tooltipRoot.appendChild(this.el);
-    tooltipRoot.classList.add("visible");
+    popoverRoot.appendChild(this.el);
+    popoverRoot.classList.add("visible");
   }
 
   componentWillUnmount() {
-    tooltipRoot.removeChild(this.el);
-    tooltipRoot.classList.remove("visible");
+    popoverRoot.removeChild(this.el);
+    popoverRoot.classList.remove("visible");
   }
 
   render() {
@@ -27,4 +27,4 @@ class Popover extends React.Component {
   }
 }
 
-export default Popover;
+export default PopoverPortal;

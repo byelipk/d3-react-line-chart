@@ -3,9 +3,9 @@ export const _breakpoints = {
   medium: 1024,
 };
 export const _aspectRatioMap = {
-  small: 0.7,
-  medium: 0.4,
-  large: 0.25
+  small: 0.4,
+  medium: 0.3,
+  large: 0.2
 };
 
 export function aspectRatio(width) {
