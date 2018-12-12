@@ -66,7 +66,7 @@ class ProfileActivityView extends React.Component {
     return (
       <div className="profile-activity-panel-analytics profile-block">
         <div className="heading">
-          <h2 className="title">Who viewed your profile</h2>
+          <h2 className="title">Your activity in the past 90 days</h2>
           <div className="subtitle">
             <span className="last-90-days">
               <strong>{totalViewsInLast90Days}</strong> Visits to your profile,
